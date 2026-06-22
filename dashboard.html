@@ -305,6 +305,7 @@
   <header class="header">
     <h1>Finanças do Casal</h1>
     <span class="updated" id="updated-at"></span>
+    <button id="refresh-btn" onclick="triggerUpdate()" style="margin-left:auto;padding:7px 16px;font-size:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;color:var(--text-dim);letter-spacing:0.04em">↻ Atualizar</button>
   </header>
 
   <!-- saúde financeira banner -->
@@ -541,7 +542,7 @@
 
 <script>
 /* ── DATA — replaced by fetch_data.py ── */
-const DATA = {"updated_at":"2026-06-22T17:44:42Z","transactions":[{"data":"2026-06-08","hora":"2026-06-08T18:31:06","data_fatura":null,"descricao":"PLANO DE SAÚDE - UNIMED - MAIO 2026","valor":794.9,"tipo":"SAÍDA","conta":"BRADESCO PJ - VICTORIA","categoria":"Cuidados","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":null,"descricao":"DÍZIMO INSIDER - JUNHO 2026","valor":660.0,"tipo":"SAÍDA","conta":"BRADESCO PJ - VICTORIA","categoria":"Doação","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":"2026-07-10","descricao":"FRUTARIA","valor":30.98,"tipo":"SAÍDA","conta":"BRADESCO - VICTORIA","categoria":"Alimentação","cobranca":"CRÉDITO"}],"saldos":[{"data":"2026-06-08","conta":"NUBANK PF - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"CRÉDITO","saldo":0.0},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"CRÉDITO","saldo":0.0},{"data":"2026-06-08","conta":"BRADESCO PJ - VICTORIA","cobranca":"PIX","saldo":0.0}],"entradas":[{"data":"2026-06-05","descricao":"SERVIÇO INSIDER - MAIO 2026","valor":6000.0,"conta":"BRADESCO PJ - VICTORIA","categoria":"Serviços","status":"RECEBIDO"},{"data":"2026-06-10","descricao":"SERVIÇO START - MAIO 2026","valor":2000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"},{"data":"2026-06-10","descricao":"SERVIÇO AGP - MAIO 2026","valor":5000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"}]};
+const DATA = {"updated_at":"2026-06-22T17:48:56Z","transactions":[{"data":"2026-06-08","hora":"2026-06-08T18:31:06","data_fatura":null,"descricao":"PLANO DE SAÚDE - UNIMED - MAIO 2026","valor":794.9,"tipo":"SAÍDA","conta":"BRADESCO PJ - VICTORIA","categoria":"Cuidados","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":null,"descricao":"DÍZIMO INSIDER - JUNHO 2026","valor":660.0,"tipo":"SAÍDA","conta":"BRADESCO PJ - VICTORIA","categoria":"Doação","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":"2026-07-10","descricao":"FRUTARIA","valor":30.98,"tipo":"SAÍDA","conta":"BRADESCO - VICTORIA","categoria":"Alimentação","cobranca":"CRÉDITO"}],"saldos":[{"data":"2026-06-08","conta":"NUBANK PF - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"CRÉDITO","saldo":0.0},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"CRÉDITO","saldo":0.0},{"data":"2026-06-08","conta":"BRADESCO PJ - VICTORIA","cobranca":"PIX","saldo":0.0}],"entradas":[{"data":"2026-06-05","descricao":"SERVIÇO INSIDER - MAIO 2026","valor":6000.0,"conta":"BRADESCO PJ - VICTORIA","categoria":"Serviços","status":"RECEBIDO"},{"data":"2026-06-10","descricao":"SERVIÇO START - MAIO 2026","valor":2000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"},{"data":"2026-06-10","descricao":"SERVIÇO AGP - MAIO 2026","valor":5000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"}]};
 
 /* ── state ── */
 let dateFrom = null, dateTo = null, pagePage = 0;
@@ -979,6 +980,10 @@ function renderExtrato() {
 function pagMove(d){const rows=getFiltered(),pages=Math.ceil(rows.length/PAGE_SIZE);pagePage=Math.max(0,Math.min(pagePage+d,pages-1));renderExtrato();}
 
 function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
+
+function triggerUpdate() {
+  window.open("https://github.com/atlassolucoes/dashboard-financeiro/actions/workflows/update-dashboard.yml", "_blank");
+}
 </script>
 </body>
 </html>
