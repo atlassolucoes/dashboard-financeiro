@@ -541,7 +541,40 @@
 
 <script>
 /* ── DATA — replaced by fetch_data.py ── */
-const DATA = {"updated_at":"2026-06-22T17:18:55Z","transactions":[{"data":"2026-06-08","hora":"2026-06-08T18:31:06","data_fatura":null,"descricao":"PLANO DE SAÚDE - UNIMED - MAIO 2026","valor":794.9,"tipo":"SAÍDA","conta":"BRADESCO PJ - VICTORIA","categoria":"Cuidados","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":null,"descricao":"DÍZIMO INSIDER - JUNHO 2026","valor":660.0,"tipo":"SAÍDA","conta":"BRADESCO PJ - VICTORIA","categoria":"Doação","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":"2026-07-10","descricao":"FRUTARIA","valor":30.98,"tipo":"SAÍDA","conta":"BRADESCO - VICTORIA","categoria":"Alimentação","cobranca":"CRÉDITO"}],"saldos":[{"data":"2026-06-08","conta":"NUBANK PF - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"CRÉDITO","saldo":0.0},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"CRÉDITO","saldo":0.0},{"data":"2026-06-08","conta":"BRADESCO PJ - VICTORIA","cobranca":"PIX","saldo":0.0}],"entradas":[{"data":"2026-06-05","descricao":"SERVIÇO INSIDER - MAIO 2026","valor":6000.0,"conta":"BRADESCO PJ - VICTORIA","categoria":"Serviços","status":"RECEBIDO"},{"data":"2026-06-10","descricao":"SERVIÇO START - MAIO 2026","valor":2000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"},{"data":"2026-06-10","descricao":"SERVIÇO AGP - MAIO 2026","valor":5000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"}]};
+const DATA = {"updated_at":"2025-06-09T00:00:00Z","transactions":[
+  {"data":"2025-06-01","data_fatura":"2025-07-05","descricao":"Supermercado","valor":480,"tipo":"SAÍDA","conta":"Nubank","categoria":"Alimentação","cobranca":"CRÉDITO"},
+  {"data":"2025-06-02","data_fatura":null,"descricao":"Salário Wendell","valor":8500,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-06-03","data_fatura":"2025-07-05","descricao":"Academia","valor":150,"tipo":"SAÍDA","conta":"Nubank","categoria":"Saúde","cobranca":"CRÉDITO"},
+  {"data":"2025-06-04","data_fatura":null,"descricao":"Dízimo","valor":850,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-06-05","data_fatura":null,"descricao":"Oferta Especial","valor":200,"tipo":"SAÍDA","conta":"Itaú","categoria":"Oferta","cobranca":"PIX"},
+  {"data":"2025-06-06","data_fatura":"2025-07-05","descricao":"Restaurante","valor":320,"tipo":"SAÍDA","conta":"C6","categoria":"Alimentação","cobranca":"CRÉDITO"},
+  {"data":"2025-06-07","data_fatura":null,"descricao":"Freelance","valor":2000,"tipo":"ENTRADA","conta":"Nubank","categoria":"Renda Extra","cobranca":"PIX"},
+  {"data":"2025-06-08","data_fatura":"2025-07-10","descricao":"Roupa","valor":280,"tipo":"SAÍDA","conta":"C6","categoria":"Vestuário","cobranca":"CRÉDITO"},
+  {"data":"2025-06-09","data_fatura":null,"descricao":"CDB Investimento","valor":1000,"tipo":"SAÍDA","conta":"Itaú","categoria":"Investimento","cobranca":"PIX"},
+  {"data":"2025-05-02","data_fatura":null,"descricao":"Salário Wendell","valor":8200,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-05-04","data_fatura":null,"descricao":"Dízimo","valor":820,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-05-10","data_fatura":null,"descricao":"Supermercado","valor":510,"tipo":"SAÍDA","conta":"Itaú","categoria":"Alimentação","cobranca":"PIX"},
+  {"data":"2025-05-15","data_fatura":"2025-06-05","descricao":"Seguro Carro","valor":390,"tipo":"SAÍDA","conta":"Nubank","categoria":"Transporte","cobranca":"CRÉDITO"},
+  {"data":"2025-05-20","data_fatura":null,"descricao":"Tesouro Direto","valor":800,"tipo":"SAÍDA","conta":"Itaú","categoria":"Investimento","cobranca":"PIX"},
+  {"data":"2025-04-02","data_fatura":null,"descricao":"Salário Wendell","valor":8000,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-04-05","data_fatura":null,"descricao":"Dízimo","valor":800,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-04-12","data_fatura":null,"descricao":"Supermercado","valor":460,"tipo":"SAÍDA","conta":"Itaú","categoria":"Alimentação","cobranca":"PIX"},
+  {"data":"2025-03-02","data_fatura":null,"descricao":"Salário Wendell","valor":7800,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-03-05","data_fatura":null,"descricao":"Dízimo","valor":780,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-02-02","data_fatura":null,"descricao":"Salário Wendell","valor":7500,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-02-05","data_fatura":null,"descricao":"Dízimo","valor":750,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-01-02","data_fatura":null,"descricao":"Salário Wendell","valor":7200,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-01-05","data_fatura":null,"descricao":"Dízimo","valor":720,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"}
+],"saldos":[
+  {"data":"2025-06-01","conta":"Itaú","cobranca":"PIX","saldo":14200},
+  {"data":"2025-06-01","conta":"Nubank","cobranca":"CRÉDITO","saldo":-950},
+  {"data":"2025-06-01","conta":"C6","cobranca":"CRÉDITO","saldo":-600},
+  {"data":"2025-05-01","conta":"Nubank","cobranca":"CRÉDITO","saldo":-1100},
+  {"data":"2025-05-01","conta":"C6","cobranca":"CRÉDITO","saldo":-740}
+],"entradas":[
+  {"data":"2025-06-15","descricao":"Mentoria Pendente","valor":1500,"conta":"Itaú","categoria":"Renda Extra","status":"PENDENTE"},
+  {"data":"2025-06-20","descricao":"Comissão Agência","valor":900,"conta":"Nubank","categoria":"Renda Extra","status":"PENDENTE"}
+]};
 
 /* ── state ── */
 let dateFrom = null, dateTo = null, pagePage = 0;
@@ -918,7 +951,7 @@ function renderSugestoes() {
     },
     {
       titulo:"Separe RECEBIDO de PENDENTE nas entradas",
-      desc:"Na aba ENTRADAS, marque a coluna Cobrança como RECEBIDO ou PENDENTE. O card "A receber" mostrará apenas o que ainda não entrou no caixa.",
+      desc:"Na aba ENTRADAS, marque a coluna Cobrança como RECEBIDO ou PENDENTE. O card 'A receber' mostrará apenas o que ainda não entrou no caixa.",
       cor:"var(--text-faint)"
     },
   ];
