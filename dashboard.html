@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Financeiro</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f4f3f0;
+    --bg-panel:  #ffffff;
+    --bg-card:   #ffffff;
+    --bg-hover:  #f9f8f6;
+    --border:    #e6e3dc;
+    --border-lt: #ccc9c0;
+
+    --text:      #1c1a17;
+    --text-dim:  #5c5850;
+    --text-faint:#a09c94;
+
+    --green:     #2a7a4f;
+    --green-dim: #d6ede2;
+    --red:       #a82318;
+    --red-dim:   #f5dedd;
+    --gold:      #866218;
+    --gold-dim:  #f5ecd4;
+    --blue:      #1a5c8a;
+    --blue-dim:  #d6e8f5;
+
+    --font-serif: Georgia, 'Times New Roman', serif;
+    --font-sans:  'Segoe UI', system-ui, sans-serif;
+
+    --radius: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.04);
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── layout ── */
+  .app { max-width: 1440px; margin: 0 auto; padding: 0 32px 80px; }
+
+  /* ── header ── */
+  .header {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .header h1 {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: normal;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .header .updated { font-size: 11px; color: var(--text-faint); letter-spacing: 0.03em; margin-left: auto; }
+
+  /* ── saúde banner ── */
+  .health-banner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .health-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); white-space: nowrap; }
+  .health-score {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: normal;
+    line-height: 1;
+    min-width: 44px;
+  }
+  .health-bar-track { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+  .health-bar-fill  { height: 100%; border-radius: 3px; transition: width .6s ease; }
+  .health-items { display: flex; gap: 24px; margin-left: 8px; }
+  .health-item { display: flex; flex-direction: column; gap: 2px; }
+  .health-item .hi-label { font-size: 10px; color: var(--text-faint); letter-spacing: 0.06em; text-transform: uppercase; }
+  .health-item .hi-val   { font-size: 12px; font-family: var(--font-serif); }
+  .hi-val.ok  { color: var(--green); }
+  .hi-val.warn{ color: var(--gold); }
+  .hi-val.bad { color: var(--red); }
+
+  /* ── filter bar ── */
+  .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-bar label { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; margin-right: 4px; }
+  .filter-bar input[type="date"] {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); padding: 7px 10px; font-size: 13px; outline: none; cursor: pointer;
+  }
+  .filter-bar input[type="date"]:focus { border-color: var(--border-lt); }
+  .shortcuts { display: flex; gap: 6px; margin-left: 4px; }
+  .shortcut-btn {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text-dim); padding: 6px 12px; font-size: 12px; cursor: pointer;
+    transition: all .15s; letter-spacing: 0.02em; white-space: nowrap;
+  }
+  .shortcut-btn:hover, .shortcut-btn.active { border-color: var(--gold); color: var(--gold); }
+
+  /* ── section title ── */
+  .section-title {
+    font-family: var(--font-serif);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── cards ── */
+  .cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 20px; }
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 18px 14px; box-shadow: var(--shadow);
+    position: relative; overflow: hidden;
+  }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+  .card.green::before  { background: var(--green); }
+  .card.red::before    { background: var(--red); }
+  .card.gold::before   { background: var(--gold); }
+  .card.blue::before   { background: var(--blue); }
+  .card.neutral::before{ background: var(--border-lt); }
+  .card .label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+  .card .amount { font-family: var(--font-serif); font-size: 22px; font-weight: normal; letter-spacing: -0.01em; line-height: 1; }
+  .card.green .amount { color: var(--green); }
+  .card.red   .amount { color: var(--red); }
+  .card.gold  .amount { color: var(--gold); }
+  .card.blue  .amount { color: var(--blue); }
+  .card.neutral .amount { color: var(--text); }
+  .card .sub { font-size: 11px; color: var(--text-faint); margin-top: 5px; }
+  .card .card-note {
+    font-size: 10px; color: var(--text-faint); margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid var(--border); font-style: italic; line-height: 1.3;
+  }
+
+  /* ── grid layouts ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .full   { grid-column: 1 / -1; }
+
+  /* ── panel ── */
+  .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 12px; border-bottom: 1px solid var(--border);
+  }
+  .panel-title { font-family: var(--font-serif); font-size: 13px; font-weight: normal; letter-spacing: 0.04em; color: var(--text); }
+  .panel-sub   { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); }
+  .panel-body  { padding: 14px 18px; }
+
+  /* ── progress categories ── */
+  .cat-list { display: flex; flex-direction: column; gap: 11px; }
+  .cat-row  { display: flex; flex-direction: column; gap: 4px; }
+  .cat-meta { display: flex; justify-content: space-between; align-items: baseline; }
+  .cat-name { font-size: 12px; color: var(--text-dim); }
+  .cat-value{ font-size: 12px; color: var(--red); font-family: var(--font-serif); }
+  .cat-pct  { font-size: 10px; color: var(--text-faint); }
+  .progress-track { height: 3px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+  .progress-fill  { height: 100%; background: var(--red); opacity: .3; border-radius: 2px; transition: width .6s ease; }
+
+  /* ── saldo rows ── */
+  .saldo-grid  { display: flex; flex-direction: column; gap: 8px; }
+  .saldo-row   { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); }
+  .saldo-conta { font-size: 12px; color: var(--text-dim); }
+  .saldo-valor { font-family: var(--font-serif); font-size: 14px; }
+  .saldo-valor.pos { color: var(--green); }
+  .saldo-valor.neg { color: var(--red); }
+
+  /* ── divida tracker ── */
+  .divida-list { display: flex; flex-direction: column; gap: 8px; }
+  .divida-row  { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); }
+  .divida-top  { display: flex; justify-content: space-between; align-items: baseline; }
+  .divida-nome { font-size: 12px; color: var(--text-dim); }
+  .divida-val  { font-size: 13px; font-family: var(--font-serif); color: var(--red); }
+  .divida-trend{ font-size: 10px; padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+  .trend-down  { background: var(--green-dim); color: var(--green); }
+  .trend-up    { background: var(--red-dim);   color: var(--red); }
+  .trend-eq    { background: var(--bg);        color: var(--text-faint); }
+
+  /* ── reserva ── */
+  .reserva-body { display: flex; flex-direction: column; gap: 14px; }
+  .reserva-row  { display: flex; flex-direction: column; gap: 6px; }
+  .reserva-meta { display: flex; justify-content: space-between; align-items: baseline; }
+  .reserva-label{ font-size: 12px; color: var(--text-dim); }
+  .reserva-pct  { font-size: 12px; font-family: var(--font-serif); }
+  .reserva-track{ height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+  .reserva-fill { height: 100%; border-radius: 3px; transition: width .6s ease; }
+  .reserva-note { font-size: 10px; color: var(--text-faint); }
+
+  /* ── histórico mensal ── */
+  .historico-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .histo-row { display: grid; grid-template-columns: 52px 1fr 72px; gap: 10px; align-items: center; }
+  .histo-mes { font-size: 11px; color: var(--text-faint); white-space: nowrap; }
+  .histo-bar-track { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; position: relative; }
+  .histo-bar-fill  { height: 100%; border-radius: 3px; }
+  .histo-val { font-size: 11px; font-family: var(--font-serif); text-align: right; white-space: nowrap; }
+  .histo-val.pos { color: var(--green); }
+  .histo-val.neg { color: var(--red); }
+
+  /* ── próximas faturas ── */
+  .fatura-list { display: flex; flex-direction: column; }
+  .fatura-row {
+    display: grid; grid-template-columns: 80px 1fr auto;
+    gap: 10px; align-items: center; padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .fatura-row:last-child { border-bottom: none; }
+  .fatura-date { font-size: 11px; color: var(--text-faint); }
+  .fatura-desc { font-size: 12px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fatura-val  { font-size: 12px; color: var(--red); font-family: var(--font-serif); white-space: nowrap; }
+
+  /* ── dízimos ── */
+  .dizimo-body { display: flex; flex-direction: column; gap: 10px; }
+  .dizimo-row  {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .dizimo-label{ font-size: 12px; color: var(--text-dim); }
+  .dizimo-val  { font-size: 13px; font-family: var(--font-serif); color: var(--gold); }
+  .dizimo-status { font-size: 10px; padding: 2px 7px; border-radius: 3px; }
+  .status-ok   { background: var(--green-dim); color: var(--green); }
+  .status-pend { background: var(--gold-dim);  color: var(--gold); }
+
+  /* ── extrato ── */
+  .extrato-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filter-select {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text-dim); padding: 6px 10px; font-size: 12px; outline: none; cursor: pointer;
+  }
+  .filter-select:focus { border-color: var(--border-lt); }
+  .extrato-search {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); padding: 6px 10px; font-size: 12px; outline: none; flex: 1; min-width: 160px;
+  }
+  .extrato-search::placeholder { color: var(--text-faint); }
+  .extrato-search:focus { border-color: var(--border-lt); }
+  .extrato-table { width: 100%; border-collapse: collapse; }
+  .extrato-table th {
+    font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--text-faint); text-align: left; padding: 6px 8px;
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg-panel);
+  }
+  .extrato-table td { padding: 8px 8px; font-size: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .extrato-table tr:last-child td { border-bottom: none; }
+  .extrato-table tr:hover td { background: var(--bg-hover); }
+  .td-date  { color: var(--text-faint); white-space: nowrap; font-size: 11px; }
+  .td-desc  { color: var(--text); max-width: 260px; }
+  .td-cat   { color: var(--text-faint); }
+  .td-valor { font-family: var(--font-serif); font-size: 13px; text-align: right; white-space: nowrap; }
+  .td-valor.entrada { color: var(--green); }
+  .td-valor.saida   { color: var(--red); }
+  .td-valor.dizimo  { color: var(--gold); }
+
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 3px; font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .badge-pix     { background: var(--green-dim); color: var(--green); }
+  .badge-credito { background: var(--red-dim);   color: var(--red); }
+  .badge-pendente{ background: var(--gold-dim);  color: var(--gold); }
+  .badge-dizimo  { background: var(--gold-dim);  color: var(--gold); }
+
+  /* ── pagination ── */
+  .pagination { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 0; margin-top: 6px; border-top: 1px solid var(--border); }
+  .pagination .info { font-size: 11px; color: var(--text-faint); }
+  .pag-btns { display: flex; gap: 6px; }
+  .pag-btn  { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim); border-radius: var(--radius); padding: 5px 10px; font-size: 11px; cursor: pointer; }
+  .pag-btn:hover { border-color: var(--border-lt); color: var(--text); }
+  .pag-btn:disabled { opacity: .3; cursor: default; }
+
+  .table-wrap { overflow-x: auto; overflow-y: auto; max-height: 460px; }
+  .empty { text-align: center; padding: 28px 0; color: var(--text-faint); font-size: 12px; font-style: italic; }
+  .mt-16 { margin-top: 16px; }
+  .gap-16 { gap: 16px; }
+
+  /* ── princípio pill ── */
+  .principio {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10px; letter-spacing: 0.06em; color: var(--text-faint);
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 3px 10px;
+  }
+  .principio::before { content: '✦'; font-size: 8px; color: var(--gold); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- header -->
+  <header class="header">
+    <h1>Finanças do Casal</h1>
+    <span class="updated" id="updated-at"></span>
+  </header>
+
+  <!-- saúde financeira banner -->
+  <div class="health-banner" id="health-banner">
+    <div style="display:flex;flex-direction:column;gap:4px;min-width:120px">
+      <span class="health-label">Saúde financeira</span>
+      <span class="health-score" id="health-score" style="color:var(--green)">—</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+      <div class="health-bar-track">
+        <div class="health-bar-fill" id="health-bar" style="width:0%;background:var(--green)"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-faint)" id="health-msg"></div>
+    </div>
+    <div class="health-items" id="health-items"></div>
+  </div>
+
+  <!-- period filter -->
+  <div class="filter-bar">
+    <label>Período</label>
+    <input type="date" id="date-from">
+    <span style="color:var(--text-faint)">—</span>
+    <input type="date" id="date-to">
+    <div class="shortcuts">
+      <button class="shortcut-btn" onclick="setShortcut('today',this)">Hoje</button>
+      <button class="shortcut-btn" onclick="setShortcut('month',this)">Este mês</button>
+      <button class="shortcut-btn" onclick="setShortcut('prev-month',this)">Mês anterior</button>
+      <button class="shortcut-btn" onclick="setShortcut('year',this)">Este ano</button>
+      <button class="shortcut-btn" onclick="setShortcut('all',this)">Tudo</button>
+    </div>
+  </div>
+
+  <!-- summary cards — 6 cols -->
+  <div class="section-title">Resumo do período</div>
+  <div class="cards" style="grid-template-columns:repeat(6,1fr)">
+    <div class="card green">
+      <div class="label">Entradas</div>
+      <div class="amount" id="card-entradas">—</div>
+      <div class="sub" id="card-entradas-sub"></div>
+    </div>
+    <div class="card gold">
+      <div class="label">Dízimos &amp; Ofertas</div>
+      <div class="amount" id="card-dizimo">—</div>
+      <div class="sub" id="card-dizimo-sub"></div>
+      <div class="card-note">Primeiro fruto — antes das despesas</div>
+    </div>
+    <div class="card red">
+      <div class="label">Saídas</div>
+      <div class="amount" id="card-saidas">—</div>
+      <div class="sub" id="card-saidas-sub"></div>
+    </div>
+    <div class="card blue">
+      <div class="label">Investimentos</div>
+      <div class="amount" id="card-invest">—</div>
+      <div class="sub" id="card-invest-sub"></div>
+      <div class="card-note">Construindo patrimônio</div>
+    </div>
+    <div class="card neutral">
+      <div class="label">Saldo do período</div>
+      <div class="amount" id="card-saldo">—</div>
+      <div class="sub" id="card-saldo-sub"></div>
+    </div>
+    <div class="card gold">
+      <div class="label">A receber</div>
+      <div class="amount" id="card-pendentes">—</div>
+      <div class="sub" id="card-pendentes-sub"></div>
+    </div>
+  </div>
+
+  <!-- row 2: categorias + saldos pix + dízimos -->
+  <div class="grid-3 mt-16">
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Saídas por Categoria</span>
+        <span class="panel-sub" id="cat-total-label"></span>
+      </div>
+      <div class="panel-body">
+        <div class="cat-list" id="cat-list"><div class="empty">Sem dados</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Saldos PIX</span>
+      </div>
+      <div class="panel-body">
+        <div class="saldo-grid" id="saldo-pix"><div class="empty">Sem dados</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Dízimos &amp; Ofertas</span>
+        <span class="principio">Princípio da abundância</span>
+      </div>
+      <div class="panel-body">
+        <div class="dizimo-body" id="dizimo-list"><div class="empty">Sem registros</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- row 3: reserva emergência + dívidas + histórico mensal -->
+  <div class="grid-3 mt-16">
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Reserva de Emergência</span>
+        <span class="principio">Proteção da família</span>
+      </div>
+      <div class="panel-body">
+        <div class="reserva-body" id="reserva-body">
+          <!-- filled by JS -->
+          <div class="reserva-row" id="reserva-pix-row">
+            <div class="reserva-meta">
+              <span class="reserva-label">Saldo PIX disponível</span>
+              <span class="reserva-pct" id="reserva-pix-pct" style="color:var(--text-faint)">—</span>
+            </div>
+            <div class="reserva-track"><div class="reserva-fill" id="reserva-pix-bar" style="width:0%;background:var(--green)"></div></div>
+            <span class="reserva-note" id="reserva-pix-note"></span>
+          </div>
+          <div class="reserva-row" style="margin-top:10px">
+            <div class="reserva-meta">
+              <span class="reserva-label">Meta (3 meses de saídas)</span>
+              <span class="reserva-pct" id="reserva-meta-val" style="color:var(--text-faint)">—</span>
+            </div>
+            <span class="reserva-note">Configure a meta na planilha SALDOS CONTAS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Dívidas (Cartões)</span>
+        <span class="principio">Integridade</span>
+      </div>
+      <div class="panel-body">
+        <div class="divida-list" id="divida-list"><div class="empty">Sem dívidas</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Histórico Mensal</span>
+        <span class="panel-sub">últimos 6 meses</span>
+      </div>
+      <div class="panel-body">
+        <div class="historico-wrap" id="historico-wrap"><div class="empty">Sem histórico</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- row 4: próximas faturas + faturas abertas -->
+  <div class="grid-2 mt-16">
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Próximas Faturas</span>
+        <span class="panel-sub" id="prox-count"></span>
+      </div>
+      <div class="panel-body">
+        <div class="fatura-list" id="prox-faturas"><div class="empty">Nenhuma fatura futura</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Faturas em Aberto</span>
+        <span class="panel-sub" id="fat-total"></span>
+      </div>
+      <div class="panel-body">
+        <div class="saldo-grid" id="faturas-abertas"><div class="empty">Sem faturas</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- extrato completo -->
+  <div class="panel mt-16">
+    <div class="panel-header">
+      <span class="panel-title">Extrato</span>
+      <span class="panel-sub" id="extrato-count"></span>
+    </div>
+    <div class="panel-body">
+      <div class="extrato-filters">
+        <input class="extrato-search" id="search" placeholder="Buscar descrição…" oninput="renderExtrato()">
+        <select class="filter-select" id="f-conta"  onchange="renderExtrato()"><option value="">Todas as contas</option></select>
+        <select class="filter-select" id="f-cat"    onchange="renderExtrato()"><option value="">Todas as categorias</option></select>
+        <select class="filter-select" id="f-tipo"   onchange="renderExtrato()">
+          <option value="">Entrada / Saída</option>
+          <option value="ENTRADA">Entradas</option>
+          <option value="SAÍDA">Saídas</option>
+        </select>
+        <select class="filter-select" id="f-cob"    onchange="renderExtrato()">
+          <option value="">PIX / Crédito</option>
+          <option value="PIX">PIX</option>
+          <option value="CRÉDITO">Crédito</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table class="extrato-table">
+          <thead>
+            <tr>
+              <th>Data</th><th>Descrição</th><th>Conta</th><th>Categoria</th><th>Tipo</th><th style="text-align:right">Valor</th>
+            </tr>
+          </thead>
+          <tbody id="extrato-body"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="info" id="pag-info"></span>
+        <div class="pag-btns">
+          <button class="pag-btn" id="pag-prev" onclick="pagMove(-1)">← Anterior</button>
+          <button class="pag-btn" id="pag-next" onclick="pagMove(1)">Próximo →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- recomendações da planilha -->
+  <div class="panel mt-16">
+    <div class="panel-header">
+      <span class="panel-title">Ajustes Sugeridos na Planilha</span>
+      <span class="principio">Mordoma fiel</span>
+    </div>
+    <div class="panel-body" id="sugestoes-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+    </div>
+  </div>
+
+</div><!-- .app -->
+
+<script>
+/* ── DATA — replaced by fetch_data.py ── */
+const DATA = {"updated_at":"2025-06-09T00:00:00Z","transactions":[
+  {"data":"2025-06-01","data_fatura":"2025-07-05","descricao":"Supermercado","valor":480,"tipo":"SAÍDA","conta":"Nubank","categoria":"Alimentação","cobranca":"CRÉDITO"},
+  {"data":"2025-06-02","data_fatura":null,"descricao":"Salário Wendell","valor":8500,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-06-03","data_fatura":"2025-07-05","descricao":"Academia","valor":150,"tipo":"SAÍDA","conta":"Nubank","categoria":"Saúde","cobranca":"CRÉDITO"},
+  {"data":"2025-06-04","data_fatura":null,"descricao":"Dízimo","valor":850,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-06-05","data_fatura":null,"descricao":"Oferta Especial","valor":200,"tipo":"SAÍDA","conta":"Itaú","categoria":"Oferta","cobranca":"PIX"},
+  {"data":"2025-06-06","data_fatura":"2025-07-05","descricao":"Restaurante","valor":320,"tipo":"SAÍDA","conta":"C6","categoria":"Alimentação","cobranca":"CRÉDITO"},
+  {"data":"2025-06-07","data_fatura":null,"descricao":"Freelance","valor":2000,"tipo":"ENTRADA","conta":"Nubank","categoria":"Renda Extra","cobranca":"PIX"},
+  {"data":"2025-06-08","data_fatura":"2025-07-10","descricao":"Roupa","valor":280,"tipo":"SAÍDA","conta":"C6","categoria":"Vestuário","cobranca":"CRÉDITO"},
+  {"data":"2025-06-09","data_fatura":null,"descricao":"CDB Investimento","valor":1000,"tipo":"SAÍDA","conta":"Itaú","categoria":"Investimento","cobranca":"PIX"},
+  {"data":"2025-05-02","data_fatura":null,"descricao":"Salário Wendell","valor":8200,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-05-04","data_fatura":null,"descricao":"Dízimo","valor":820,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-05-10","data_fatura":null,"descricao":"Supermercado","valor":510,"tipo":"SAÍDA","conta":"Itaú","categoria":"Alimentação","cobranca":"PIX"},
+  {"data":"2025-05-15","data_fatura":"2025-06-05","descricao":"Seguro Carro","valor":390,"tipo":"SAÍDA","conta":"Nubank","categoria":"Transporte","cobranca":"CRÉDITO"},
+  {"data":"2025-05-20","data_fatura":null,"descricao":"Tesouro Direto","valor":800,"tipo":"SAÍDA","conta":"Itaú","categoria":"Investimento","cobranca":"PIX"},
+  {"data":"2025-04-02","data_fatura":null,"descricao":"Salário Wendell","valor":8000,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-04-05","data_fatura":null,"descricao":"Dízimo","valor":800,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-04-12","data_fatura":null,"descricao":"Supermercado","valor":460,"tipo":"SAÍDA","conta":"Itaú","categoria":"Alimentação","cobranca":"PIX"},
+  {"data":"2025-03-02","data_fatura":null,"descricao":"Salário Wendell","valor":7800,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-03-05","data_fatura":null,"descricao":"Dízimo","valor":780,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-02-02","data_fatura":null,"descricao":"Salário Wendell","valor":7500,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-02-05","data_fatura":null,"descricao":"Dízimo","valor":750,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"},
+  {"data":"2025-01-02","data_fatura":null,"descricao":"Salário Wendell","valor":7200,"tipo":"ENTRADA","conta":"Itaú","categoria":"Renda","cobranca":"PIX"},
+  {"data":"2025-01-05","data_fatura":null,"descricao":"Dízimo","valor":720,"tipo":"SAÍDA","conta":"Itaú","categoria":"Dízimo","cobranca":"PIX"}
+],"saldos":[
+  {"data":"2025-06-01","conta":"Itaú","cobranca":"PIX","saldo":14200},
+  {"data":"2025-06-01","conta":"Nubank","cobranca":"CRÉDITO","saldo":-950},
+  {"data":"2025-06-01","conta":"C6","cobranca":"CRÉDITO","saldo":-600},
+  {"data":"2025-05-01","conta":"Nubank","cobranca":"CRÉDITO","saldo":-1100},
+  {"data":"2025-05-01","conta":"C6","cobranca":"CRÉDITO","saldo":-740}
+],"entradas":[
+  {"data":"2025-06-15","descricao":"Mentoria Pendente","valor":1500,"conta":"Itaú","categoria":"Renda Extra","status":"PENDENTE"},
+  {"data":"2025-06-20","descricao":"Comissão Agência","valor":900,"conta":"Nubank","categoria":"Renda Extra","status":"PENDENTE"}
+]};
+
+/* ── state ── */
+let dateFrom = null, dateTo = null, pagePage = 0;
+const PAGE_SIZE = 50;
+const DIZIMO_CATS = ["dízimo","dizimo","oferta","oferta especial","contribuição","contribuicao","caridade"];
+const INVEST_CATS = ["investimento","investimentos","tesouro direto","cdb","poupança","fgts","previdência","fundo"];
+
+/* ── init ── */
+document.addEventListener("DOMContentLoaded", () => {
+  if (DATA.updated_at) {
+    const d = new Date(DATA.updated_at);
+    document.getElementById("updated-at").textContent = "Atualizado em " + d.toLocaleString("pt-BR");
+  }
+  const contas = [...new Set(DATA.transactions.map(t=>t.conta).filter(Boolean))].sort();
+  const cats   = [...new Set(DATA.transactions.map(t=>t.categoria).filter(Boolean))].sort();
+  appendOptions("f-conta", contas);
+  appendOptions("f-cat", cats);
+  setShortcut("month", document.querySelector(".shortcut-btn:nth-child(2)"));
+  renderSugestoes();
+});
+
+function appendOptions(id, vals) {
+  const s = document.getElementById(id);
+  vals.forEach(v => { const o = document.createElement("option"); o.value=v; o.textContent=v; s.appendChild(o); });
+}
+
+/* ── shortcuts ── */
+function setShortcut(key, btn) {
+  document.querySelectorAll(".shortcut-btn").forEach(b=>b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  const today=new Date(), y=today.getFullYear(), m=today.getMonth();
+  let from, to;
+  if      (key==="today")      { from=to=fmt(today); }
+  else if (key==="month")      { from=fmt(new Date(y,m,1)); to=fmt(new Date(y,m+1,0)); }
+  else if (key==="prev-month") { from=fmt(new Date(y,m-1,1)); to=fmt(new Date(y,m,0)); }
+  else if (key==="year")       { from=fmt(new Date(y,0,1)); to=fmt(new Date(y,11,31)); }
+  else                         { from=""; to=""; }
+  document.getElementById("date-from").value = from||"";
+  document.getElementById("date-to").value   = to||"";
+  dateFrom=from||null; dateTo=to||null;
+  renderAll();
+}
+document.getElementById("date-from").addEventListener("change", e => {
+  dateFrom=e.target.value||null;
+  document.querySelectorAll(".shortcut-btn").forEach(b=>b.classList.remove("active")); renderAll();
+});
+document.getElementById("date-to").addEventListener("change", e => {
+  dateTo=e.target.value||null;
+  document.querySelectorAll(".shortcut-btn").forEach(b=>b.classList.remove("active")); renderAll();
+});
+
+function fmt(d) { return d.toISOString().split("T")[0]; }
+function inPeriod(iso) {
+  if (!iso) return false;
+  if (dateFrom && iso < dateFrom) return false;
+  if (dateTo   && iso > dateTo)   return false;
+  return true;
+}
+function fmtBRL(v) { return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
+function fmtDateBR(iso) { if(!iso) return ""; const [y,m,d]=iso.split("-"); return `${d}/${m}/${y}`; }
+function isDizimo(t)  { return DIZIMO_CATS.some(c => t.categoria.toLowerCase().includes(c)); }
+function isInvest(t)  { return INVEST_CATS.some(c => t.categoria.toLowerCase().includes(c)); }
+
+/* ── render all ── */
+function renderAll() {
+  pagePage=0;
+  renderCards();
+  renderCategories();
+  renderSaldos();
+  renderDizimos();
+  renderReserva();
+  renderDividas();
+  renderHistorico();
+  renderProxFaturas();
+  renderFaturasAbertas();
+  renderSaude();
+  renderExtrato();
+}
+
+/* ── cards ── */
+function renderCards() {
+  const tx = DATA.transactions.filter(t=>inPeriod(t.data));
+  const entradas  = tx.filter(t=>t.tipo==="ENTRADA");
+  const saidas    = tx.filter(t=>t.tipo==="SAÍDA" && !isDizimo(t) && !isInvest(t));
+  const dizimos   = tx.filter(t=>t.tipo==="SAÍDA" && isDizimo(t));
+  const invests   = tx.filter(t=>t.tipo==="SAÍDA" && isInvest(t));
+
+  const totEnt  = entradas.reduce((s,t)=>s+Math.abs(t.valor),0);
+  const totSai  = saidas.reduce((s,t)=>s+Math.abs(t.valor),0);
+  const totDiz  = dizimos.reduce((s,t)=>s+Math.abs(t.valor),0);
+  const totInv  = invests.reduce((s,t)=>s+Math.abs(t.valor),0);
+  const saldo   = totEnt - totSai - totDiz - totInv;
+  const totPend = DATA.entradas.filter(e=>e.status==="PENDENTE").reduce((s,e)=>s+Math.abs(e.valor),0);
+
+  set("card-entradas",    fmtBRL(totEnt));
+  set("card-entradas-sub",`${entradas.length} lançamentos`);
+  set("card-saidas",      fmtBRL(totSai));
+  set("card-saidas-sub",  `${saidas.length} lançamentos`);
+  set("card-dizimo",      fmtBRL(totDiz));
+  set("card-dizimo-sub",  `${dizimos.length} registros`);
+  set("card-invest",      fmtBRL(totInv));
+  set("card-invest-sub",  `${invests.length} aportes`);
+
+  const saldoEl = document.getElementById("card-saldo");
+  saldoEl.textContent = fmtBRL(saldo);
+  saldoEl.style.color = saldo>=0?"var(--green)":"var(--red)";
+  set("card-saldo-sub", saldo>=0?"saldo positivo":"saldo negativo");
+  set("card-pendentes",     fmtBRL(totPend));
+  set("card-pendentes-sub", `${DATA.entradas.filter(e=>e.status==="PENDENTE").length} pendentes`);
+}
+
+/* ── categories ── */
+function renderCategories() {
+  const saidas = DATA.transactions.filter(t=>inPeriod(t.data)&&t.tipo==="SAÍDA"&&!isDizimo(t)&&!isInvest(t));
+  const bycat  = {};
+  saidas.forEach(t=>{ const c=t.categoria||"Sem categoria"; bycat[c]=(bycat[c]||0)+Math.abs(t.valor); });
+  const sorted = Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
+  const total  = sorted.reduce((s,[,v])=>s+v,0);
+  set("cat-total-label", total?fmtBRL(total):"");
+  const el=document.getElementById("cat-list");
+  if (!sorted.length){el.innerHTML='<div class="empty">Sem saídas no período</div>';return;}
+  el.innerHTML=sorted.map(([cat,val])=>{
+    const pct=total>0?(val/total*100).toFixed(1):0;
+    return `<div class="cat-row">
+      <div class="cat-meta"><span class="cat-name">${cat}</span><span class="cat-value">${fmtBRL(val)}</span><span class="cat-pct">${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+/* ── saldos pix ── */
+function renderSaldos() {
+  const pix=DATA.saldos.filter(s=>s.cobranca==="PIX");
+  const latest={};
+  pix.forEach(s=>{ if(!latest[s.conta]||s.data>latest[s.conta].data) latest[s.conta]=s; });
+  const rows=Object.values(latest).sort((a,b)=>a.conta.localeCompare(b.conta));
+  const el=document.getElementById("saldo-pix");
+  if(!rows.length){el.innerHTML='<div class="empty">Sem dados</div>';return;}
+  el.innerHTML=rows.map(r=>`
+    <div class="saldo-row">
+      <span class="saldo-conta">${r.conta}</span>
+      <span class="saldo-valor ${r.saldo<0?'neg':'pos'}">${fmtBRL(r.saldo)}</span>
+    </div>`).join("");
+}
+
+/* ── dízimos ── */
+function renderDizimos() {
+  const tx=DATA.transactions.filter(t=>inPeriod(t.data)&&t.tipo==="SAÍDA"&&isDizimo(t));
+  const el=document.getElementById("dizimo-list");
+  if(!tx.length){el.innerHTML='<div class="empty">Nenhum registro no período</div>';return;}
+  const total=tx.reduce((s,t)=>s+Math.abs(t.valor),0);
+  el.innerHTML=tx.map(t=>`
+    <div class="dizimo-row">
+      <span class="dizimo-label">${t.descricao}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="dizimo-val">${fmtBRL(Math.abs(t.valor))}</span>
+        <span class="dizimo-status status-ok">✓</span>
+      </div>
+    </div>`).join("")
+  + `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;color:var(--text-faint)">Total do período</span>
+      <span style="font-family:var(--font-serif);font-size:15px;color:var(--gold)">${fmtBRL(total)}</span>
+    </div>`;
+}
+
+/* ── reserva de emergência ── */
+function renderReserva() {
+  // Total PIX disponível
+  const pix=DATA.saldos.filter(s=>s.cobranca==="PIX");
+  const latest={};
+  pix.forEach(s=>{ if(!latest[s.conta]||s.data>latest[s.conta].data) latest[s.conta]=s; });
+  const totalPix=Object.values(latest).reduce((s,r)=>s+r.saldo,0);
+
+  // Meta = 3x média mensal de saídas (últimos 3 meses)
+  const hoje=new Date(), mesAtual=fmt(hoje).substring(0,7);
+  const ultimos3Meses=DATA.transactions.filter(t=>{
+    if(!t.data||t.tipo!=="SAÍDA"||isDizimo(t)||isInvest(t)) return false;
+    return t.data.substring(0,7)<mesAtual;
+  });
+  const meses={};
+  ultimos3Meses.forEach(t=>{const m=t.data.substring(0,7);meses[m]=(meses[m]||0)+Math.abs(t.valor);});
+  const vals=Object.values(meses).slice(-3);
+  const mediaMensal=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:3000;
+  const meta=mediaMensal*3;
+  const pct=Math.min((totalPix/meta)*100,100);
+
+  document.getElementById("reserva-pix-pct").textContent = fmtBRL(totalPix);
+  document.getElementById("reserva-pix-pct").style.color = totalPix>=meta?"var(--green)":"var(--gold)";
+  document.getElementById("reserva-pix-bar").style.width  = pct.toFixed(1)+"%";
+  document.getElementById("reserva-pix-bar").style.background = pct>=100?"var(--green)":pct>=60?"var(--gold)":"var(--red)";
+  document.getElementById("reserva-pix-note").textContent = `${pct.toFixed(0)}% da meta — ${fmtBRL(Math.max(meta-totalPix,0))} para completar`;
+  document.getElementById("reserva-meta-val").textContent = fmtBRL(meta);
+  document.getElementById("reserva-meta-val").style.color = "var(--text-dim)";
+}
+
+/* ── dívidas (crédito) com tendência ── */
+function renderDividas() {
+  const credito=DATA.saldos.filter(s=>s.cobranca==="CRÉDITO");
+  // latest e anterior por conta
+  const byContas={};
+  credito.forEach(s=>{
+    if(!byContas[s.conta]) byContas[s.conta]=[];
+    byContas[s.conta].push(s);
+  });
+  const el=document.getElementById("divida-list");
+  const rows=Object.entries(byContas).map(([conta,list])=>{
+    const sorted=list.sort((a,b)=>b.data.localeCompare(a.data));
+    const atual=sorted[0]?.saldo||0;
+    const anterior=sorted[1]?.saldo||null;
+    let trendHtml="";
+    if(anterior!==null){
+      const diff=Math.abs(atual)-Math.abs(anterior);
+      if(diff<-0.01) trendHtml=`<span class="divida-trend trend-down">↓ ${fmtBRL(Math.abs(diff))}</span>`;
+      else if(diff>0.01) trendHtml=`<span class="divida-trend trend-up">↑ ${fmtBRL(diff)}</span>`;
+      else trendHtml=`<span class="divida-trend trend-eq">estável</span>`;
+    }
+    return {conta,atual,trendHtml};
+  }).filter(r=>r.atual<0).sort((a,b)=>a.atual-b.atual);
+
+  if(!rows.length){el.innerHTML='<div class="empty">Nenhuma dívida em aberto ✓</div>';return;}
+  const totalDivida=rows.reduce((s,r)=>s+Math.abs(r.atual),0);
+  el.innerHTML=rows.map(r=>`
+    <div class="divida-row">
+      <div class="divida-top">
+        <span class="divida-nome">${r.conta}</span>
+        <span class="divida-val">${fmtBRL(Math.abs(r.atual))}</span>
+      </div>
+      <div style="display:flex;justify-content:flex-end">${r.trendHtml}</div>
+    </div>`).join("")
+  +`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;color:var(--text-faint)">Total em dívidas</span>
+      <span style="font-family:var(--font-serif);font-size:15px;color:var(--red)">${fmtBRL(totalDivida)}</span>
+    </div>`;
+}
+
+/* ── histórico mensal (últimos 6 meses) ── */
+function renderHistorico() {
+  const hoje=new Date();
+  const meses=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(hoje.getFullYear(), hoje.getMonth()-i, 1);
+    meses.push({key:fmt(d).substring(0,7), label:d.toLocaleDateString("pt-BR",{month:"short",year:"2-digit"})});
+  }
+  const dados=meses.map(({key,label})=>{
+    const txMes=DATA.transactions.filter(t=>t.data&&t.data.startsWith(key));
+    const ent=txMes.filter(t=>t.tipo==="ENTRADA").reduce((s,t)=>s+t.valor,0);
+    const sai=txMes.filter(t=>t.tipo==="SAÍDA").reduce((s,t)=>s+t.valor,0);
+    return {label, saldo:ent-sai};
+  });
+  const maxAbs=Math.max(...dados.map(d=>Math.abs(d.saldo)),1);
+  const el=document.getElementById("historico-wrap");
+  if(dados.every(d=>d.saldo===0)){el.innerHTML='<div class="empty">Sem histórico</div>';return;}
+  el.innerHTML=dados.map(d=>{
+    const pct=(Math.abs(d.saldo)/maxAbs*100).toFixed(1);
+    const isPos=d.saldo>=0;
+    return `<div class="histo-row">
+      <span class="histo-mes">${d.label}</span>
+      <div class="histo-bar-track">
+        <div class="histo-bar-fill" style="width:${pct}%;background:${isPos?'var(--green)':'var(--red)'};opacity:.5"></div>
+      </div>
+      <span class="histo-val ${isPos?'pos':'neg'}">${fmtBRL(d.saldo)}</span>
+    </div>`;
+  }).join("");
+}
+
+/* ── próximas faturas ── */
+function renderProxFaturas() {
+  const today=fmt(new Date());
+  const prox=DATA.transactions.filter(t=>t.data_fatura&&t.data_fatura>=today&&t.tipo==="SAÍDA")
+    .sort((a,b)=>a.data_fatura.localeCompare(b.data_fatura)).slice(0,20);
+  set("prox-count", prox.length?`${prox.length} lançamentos`:"");
+  const el=document.getElementById("prox-faturas");
+  if(!prox.length){el.innerHTML='<div class="empty">Nenhuma fatura futura</div>';return;}
+  el.innerHTML=prox.map(t=>`
+    <div class="fatura-row">
+      <span class="fatura-date">${fmtDateBR(t.data_fatura)}</span>
+      <span class="fatura-desc" title="${t.descricao}">${t.descricao}</span>
+      <span class="fatura-val">${fmtBRL(Math.abs(t.valor))}</span>
+    </div>`).join("");
+}
+
+/* ── faturas abertas ── */
+function renderFaturasAbertas() {
+  const cred=DATA.saldos.filter(s=>s.cobranca==="CRÉDITO");
+  const latest={};
+  cred.forEach(s=>{if(!latest[s.conta]||s.data>latest[s.conta].data) latest[s.conta]=s;});
+  const rows=Object.values(latest).sort((a,b)=>a.saldo-b.saldo);
+  const total=rows.reduce((s,r)=>s+Math.abs(r.saldo),0);
+  set("fat-total", total?fmtBRL(total):"");
+  const el=document.getElementById("faturas-abertas");
+  if(!rows.length){el.innerHTML='<div class="empty">Sem faturas</div>';return;}
+  el.innerHTML=rows.map(r=>`
+    <div class="saldo-row">
+      <span class="saldo-conta">${r.conta}</span>
+      <span class="saldo-valor neg">${fmtBRL(Math.abs(r.saldo))}</span>
+    </div>`).join("");
+}
+
+/* ── saúde financeira ── */
+function renderSaude() {
+  const tx=DATA.transactions.filter(t=>inPeriod(t.data));
+  const totEnt=tx.filter(t=>t.tipo==="ENTRADA").reduce((s,t)=>s+t.valor,0);
+  const totSai=tx.filter(t=>t.tipo==="SAÍDA").reduce((s,t)=>s+Math.abs(t.valor),0);
+  const totDiz=tx.filter(t=>t.tipo==="SAÍDA"&&isDizimo(t)).reduce((s,t)=>s+Math.abs(t.valor),0);
+  const totInv=tx.filter(t=>t.tipo==="SAÍDA"&&isInvest(t)).reduce((s,t)=>s+Math.abs(t.valor),0);
+
+  const pctDiz = totEnt>0?(totDiz/totEnt*100):0;
+  const pctInv = totEnt>0?(totInv/totEnt*100):0;
+  const pctSob = totEnt>0?((totEnt-totSai)/totEnt*100):0;
+
+  // Score: 0-100
+  let score=0;
+  if(pctDiz>=10) score+=30; else if(pctDiz>=5) score+=15;
+  if(pctInv>=10) score+=25; else if(pctInv>=5) score+=12;
+  if(pctSob>20) score+=30; else if(pctSob>0) score+=15;
+  if(totEnt>totSai) score+=15;
+  score=Math.min(score,100);
+
+  const scoreEl=document.getElementById("health-score");
+  const barEl=document.getElementById("health-bar");
+  const msgEl=document.getElementById("health-msg");
+  const itemsEl=document.getElementById("health-items");
+
+  scoreEl.textContent=score+"/100";
+  scoreEl.style.color=score>=70?"var(--green)":score>=40?"var(--gold)":"var(--red)";
+  barEl.style.width=score+"%";
+  barEl.style.background=score>=70?"var(--green)":score>=40?"var(--gold)":"var(--red)";
+
+  const msgs=[];
+  if(pctDiz<10) msgs.push("Dízimo abaixo de 10%");
+  if(pctInv<10) msgs.push("Investimento abaixo de 10%");
+  if(pctSob<0)  msgs.push("Gastos maiores que entradas");
+  msgEl.textContent=msgs.length?msgs.join(" · "):"Parabéns — finanças equilibradas!";
+
+  const diz_cls=pctDiz>=10?"ok":pctDiz>=5?"warn":"bad";
+  const inv_cls=pctInv>=10?"ok":pctInv>=5?"warn":"bad";
+  const sob_cls=pctSob>20?"ok":pctSob>0?"warn":"bad";
+
+  itemsEl.innerHTML=[
+    {l:"Dízimo",   v:`${pctDiz.toFixed(1)}% da renda`,    cls:diz_cls},
+    {l:"Investimento", v:`${pctInv.toFixed(1)}% da renda`, cls:inv_cls},
+    {l:"Sobra",    v:`${pctSob.toFixed(1)}%`,              cls:sob_cls},
+  ].map(i=>`<div class="health-item"><span class="hi-label">${i.l}</span><span class="hi-val ${i.cls}">${i.v}</span></div>`).join("");
+}
+
+/* ── sugestões de planilha ── */
+function renderSugestoes() {
+  const el=document.getElementById("sugestoes-body");
+  const items=[
+    {
+      titulo:"Separe Dízimo como categoria própria",
+      desc:"Crie a categoria "Dízimo" e "Oferta" na planilha ENTRADA E SAIDA. O dashboard os exibe separados das despesas comuns, refletindo que são o primeiro fruto — não uma despesa.",
+      cor:"var(--gold)"
+    },
+    {
+      titulo:"Adicione categoria "Investimento"",
+      desc:"Registre aportes (CDB, Tesouro, previdência) como SAÍDA / categoria Investimento. O dashboard calcula o percentual da renda investido e alerta quando está abaixo de 10%.",
+      cor:"var(--blue)"
+    },
+    {
+      titulo:"Meta de Reserva na aba SALDOS CONTAS",
+      desc:"Adicione uma linha com Conta = "Meta Reserva" e o valor-alvo. O painel de Reserva de Emergência usa isso para calcular quanto falta para 3 meses de despesas.",
+      cor:"var(--green)"
+    },
+    {
+      titulo:"Registre o saldo todo mês",
+      desc:"Salve uma linha na aba SALDOS CONTAS no primeiro dia de cada mês. O histórico mensal e o indicador de tendência de dívida dependem dessa série temporal.",
+      cor:"var(--text-dim)"
+    },
+    {
+      titulo:"Use "Data da Fatura" em todo crédito",
+      desc:"Preencha a coluna Data da Fatura em todas as compras no cartão. O painel "Próximas Faturas" avisa os vencimentos futuros e evita surpresas no fechamento.",
+      cor:"var(--red)"
+    },
+    {
+      titulo:"Separe RECEBIDO de PENDENTE nas entradas",
+      desc:"Na aba ENTRADAS, marque a coluna Cobrança como RECEBIDO ou PENDENTE. O card "A receber" mostrará apenas o que ainda não entrou no caixa.",
+      cor:"var(--text-faint)"
+    },
+  ];
+  el.innerHTML=items.map(i=>`
+    <div style="border-left:3px solid ${i.cor};padding:12px 14px;background:var(--bg);border-radius:var(--radius)">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px">${i.titulo}</div>
+      <div style="font-size:11px;color:var(--text-dim);line-height:1.5">${i.desc}</div>
+    </div>`).join("");
+}
+
+/* ── extrato ── */
+function getFiltered() {
+  const search=document.getElementById("search").value.toLowerCase();
+  const fC=document.getElementById("f-conta").value;
+  const fCat=document.getElementById("f-cat").value;
+  const fT=document.getElementById("f-tipo").value;
+  const fCob=document.getElementById("f-cob").value;
+  return DATA.transactions.filter(t=>{
+    if(!inPeriod(t.data)) return false;
+    if(search && !t.descricao.toLowerCase().includes(search) && !t.conta.toLowerCase().includes(search) && !t.categoria.toLowerCase().includes(search)) return false;
+    if(fC && t.conta!==fC) return false;
+    if(fCat && t.categoria!==fCat) return false;
+    if(fT && t.tipo!==fT) return false;
+    if(fCob && t.cobranca!==fCob) return false;
+    return true;
+  }).sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+}
+
+function renderExtrato() {
+  const rows=getFiltered(), total=rows.length;
+  const start=pagePage*PAGE_SIZE, slice=rows.slice(start,start+PAGE_SIZE);
+  set("extrato-count",total?`${total} lançamento${total>1?"s":""}`:"");
+  const body=document.getElementById("extrato-body");
+  if(!slice.length){body.innerHTML=`<tr><td colspan="6"><div class="empty">Nenhum lançamento</div></td></tr>`;
+  } else {
+    body.innerHTML=slice.map(t=>{
+      const isEnt=t.tipo==="ENTRADA";
+      const isDiz=isDizimo(t)&&!isEnt;
+      const cob=t.cobranca==="PIX"?'<span class="badge badge-pix">PIX</span>':
+                t.cobranca==="CRÉDITO"?'<span class="badge badge-credito">Crédito</span>':"";
+      const valCls=isEnt?"entrada":isDiz?"dizimo":"saida";
+      const sinal=isEnt?"+":"−";
+      return `<tr>
+        <td class="td-date">${fmtDateBR(t.data)}</td>
+        <td class="td-desc">${t.descricao}${isDiz?' <span class="badge badge-dizimo">dízimo</span>':""}</td>
+        <td>${t.conta}</td>
+        <td class="td-cat">${t.categoria}</td>
+        <td>${cob}</td>
+        <td class="td-valor ${valCls}">${sinal}${fmtBRL(Math.abs(t.valor))}</td>
+      </tr>`;
+    }).join("");
+  }
+  const pages=Math.ceil(total/PAGE_SIZE);
+  set("pag-info", total?`${start+1}–${Math.min(start+PAGE_SIZE,total)} de ${total}`:"");
+  document.getElementById("pag-prev").disabled=pagePage===0;
+  document.getElementById("pag-next").disabled=pagePage>=pages-1;
+}
+function pagMove(d){const rows=getFiltered(),pages=Math.ceil(rows.length/PAGE_SIZE);pagePage=Math.max(0,Math.min(pagePage+d,pages-1));renderExtrato();}
+
+function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
+</script>
+</body>
+</html>
