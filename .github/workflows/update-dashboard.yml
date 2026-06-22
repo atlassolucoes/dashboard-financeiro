@@ -2,8 +2,8 @@ name: Update Dashboard
 
 on:
   schedule:
-    # Runs every hour
-    - cron: "0 * * * *"
+    # Runs at 08:00 and 20:00 Brazil time (11:00 and 23:00 UTC)
+    - cron: "0 11,23 * * *"
   push:
     branches:
       - main
