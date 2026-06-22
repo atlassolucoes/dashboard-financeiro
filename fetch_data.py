@@ -34,13 +34,33 @@ SCOPES = [
 
 # ── helpers ─────────────────────────────────────────────────────────────────
 def parse_date(val):
-    """Try common Brazilian date formats, return ISO string or None."""
+    """Try common Brazilian date+time formats, return ISO date string or None."""
     if not val or str(val).strip() == "":
         return None
     val = str(val).strip()
-    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%d/%m/%y"):
+    for fmt in (
+        "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M",
+        "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M",
+        "%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%d/%m/%y",
+    ):
         try:
             return datetime.strptime(val, fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    return None
+
+def parse_datetime(val):
+    """Return ISO datetime string (with time) or None."""
+    if not val or str(val).strip() == "":
+        return None
+    val = str(val).strip()
+    for fmt in (
+        "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M",
+        "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M",
+        "%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%d/%m/%y",
+    ):
+        try:
+            return datetime.strptime(val, fmt).strftime("%Y-%m-%dT%H:%M:%S")
         except ValueError:
             pass
     return None
@@ -98,6 +118,7 @@ def main():
     transactions = []
     for r in raw_transactions:
         data = parse_date(r.get("Data", ""))
+        hora = parse_datetime(r.get("Data", ""))
         data_fatura = parse_date(r.get("Data da Fatura", ""))
         valor = parse_value(r.get("Valor", ""))
         tipo = str(r.get("TIPO", "")).strip().upper()
@@ -108,6 +129,7 @@ def main():
 
         transactions.append({
             "data": data,
+            "hora": hora,
             "data_fatura": data_fatura,
             "descricao": str(r.get("Descrição", "")).strip(),
             "valor": valor,
