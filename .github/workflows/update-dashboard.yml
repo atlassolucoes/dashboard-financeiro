@@ -36,19 +36,6 @@ jobs:
           SHEET_ID: ${{ secrets.SHEET_ID }}
         run: python fetch_data.py
 
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Commit updated dashboard.html
-        run: |
-          git add dashboard.html
-          git diff --staged --quiet || git commit -m "chore: update dashboard data [skip ci]"
-
-      - name: Push changes
-        run: git push
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
