@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
 Fetches data from Google Sheets and injects it as const DATA= into dashboard.html
-Usage: python fetch_data.py
-Requires: SHEET_ID env var (or hardcoded below), gspread + google-auth libraries
 """
 
 import os
@@ -11,7 +9,6 @@ import re
 import sys
 from datetime import datetime, date
 
-# ── dependencies ────────────────────────────────────────────────────────────
 try:
     import gspread
     from google.oauth2.service_account import Credentials
@@ -21,10 +18,9 @@ except ImportError:
     import gspread
     from google.oauth2.service_account import Credentials
 
-# ── configuration ───────────────────────────────────────────────────────────
 SHEET_ID = os.environ.get(
     "SHEET_ID",
-    "1dQCzTCIhGjo-mYHk08WuGj0-wOmMIVVRSs2ohku08iQ"
+    "1PpbFefuje7Mxzb8J_QY_Pgr8JWwxtHc7k_9nAar6_iU"
 )
 
 SCOPES = [
@@ -32,9 +28,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly",
 ]
 
-# ── helpers ─────────────────────────────────────────────────────────────────
 def parse_date(val):
-    """Try common Brazilian date+time formats, return ISO date string or None."""
     if not val or str(val).strip() == "":
         return None
     val = str(val).strip()
@@ -50,7 +44,6 @@ def parse_date(val):
     return None
 
 def parse_datetime(val):
-    """Return ISO datetime string (with time) or None."""
     if not val or str(val).strip() == "":
         return None
     val = str(val).strip()
@@ -66,13 +59,10 @@ def parse_datetime(val):
     return None
 
 def parse_value(val):
-    """Parse Brazilian currency string to float."""
     if val is None or str(val).strip() == "":
         return 0.0
     val = str(val).strip()
-    # Remove R$, spaces
     val = re.sub(r"[R$\s]", "", val)
-    # Brazilian format: 1.234,56 → 1234.56
     if "," in val and "." in val:
         val = val.replace(".", "").replace(",", ".")
     elif "," in val:
@@ -83,21 +73,28 @@ def parse_value(val):
         return 0.0
 
 def rows_to_dicts(worksheet):
-    """Return list of dicts from a worksheet (first row = headers)."""
     rows = worksheet.get_all_values()
     if not rows:
         return []
     headers = [h.strip() for h in rows[0]]
     result = []
     for row in rows[1:]:
-        # pad short rows
         padded = row + [""] * (len(headers) - len(row))
         result.append(dict(zip(headers, padded)))
     return result
 
-# ── main ────────────────────────────────────────────────────────────────────
+def get_field(d, *keys):
+    """Case-insensitive field lookup with multiple fallback keys."""
+    for key in keys:
+        if key in d:
+            return d[key]
+    d_lower = {k.lower(): v for k, v in d.items()}
+    for key in keys:
+        if key.lower() in d_lower:
+            return d_lower[key.lower()]
+    return ""
+
 def main():
-    # Authenticate
     creds_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
     if creds_json:
         import tempfile
@@ -117,15 +114,17 @@ def main():
 
     transactions = []
     for r in raw_transactions:
-        data = parse_date(r.get("Data", ""))
-        hora = parse_datetime(r.get("Data", ""))
+        data      = parse_date(r.get("Data", ""))
+        hora      = parse_datetime(r.get("Data", ""))
         data_fatura = parse_date(r.get("Data da Fatura", ""))
-        valor = parse_value(r.get("Valor", ""))
-        tipo = str(r.get("TIPO", "")).strip().upper()
-        cobranca = str(r.get("Cobrança", "")).strip().upper()
+        valor     = parse_value(r.get("Valor", ""))
+        tipo      = str(r.get("TIPO", "")).strip().upper()
+        modelo    = str(r.get("MODELO", "")).strip().upper()       # FIXO | VARIÁVEL
+        cobranca  = str(r.get("Cobrança", "")).strip().upper()
+        subcat    = str(get_field(r, "Sub-Categoria", "Subcategoria")).strip()
 
         if not data and not r.get("Descrição", "").strip():
-            continue  # skip empty rows
+            continue
 
         transactions.append({
             "data": data,
@@ -133,10 +132,12 @@ def main():
             "data_fatura": data_fatura,
             "descricao": str(r.get("Descrição", "")).strip(),
             "valor": valor,
-            "tipo": tipo,          # ENTRADA | SAÍDA
+            "tipo": tipo,
+            "modelo": modelo,
             "conta": str(r.get("Conta", "")).strip(),
             "categoria": str(r.get("Categoria", "")).strip(),
-            "cobranca": cobranca,  # PIX | CRÉDITO
+            "subcategoria": subcat,
+            "cobranca": cobranca,
         })
 
     # ── SALDOS CONTAS ────────────────────────────────────────────────────────
@@ -145,16 +146,16 @@ def main():
 
     saldos = []
     for r in raw_saldos:
-        saldo = parse_value(r.get("Saldo", ""))
-        conta = str(r.get("Conta", "")).strip()
+        saldo    = parse_value(get_field(r, "SALDO", "Saldo"))
+        conta    = str(r.get("Conta", "")).strip()
         cobranca = str(r.get("Cobrança", "")).strip().upper()
-        data = parse_date(r.get("Data", ""))
+        data     = parse_date(r.get("Data", ""))
         if not conta:
             continue
         saldos.append({
             "data": data,
             "conta": conta,
-            "cobranca": cobranca,  # PIX | CRÉDITO
+            "cobranca": cobranca,
             "saldo": saldo,
         })
 
@@ -164,9 +165,9 @@ def main():
 
     entradas = []
     for r in raw_entradas:
-        valor = parse_value(r.get("Valor", ""))
-        status = str(r.get("Cobrança", "")).strip().upper()  # RECEBIDO | PENDENTE
-        data = parse_date(r.get("Data", ""))
+        valor    = parse_value(r.get("Valor", ""))
+        status   = str(r.get("Cobrança", "")).strip().upper()
+        data     = parse_date(r.get("Data", ""))
         descricao = str(r.get("Descrição", "")).strip()
         if not descricao and not data:
             continue
@@ -176,7 +177,7 @@ def main():
             "valor": valor,
             "conta": str(r.get("Conta", "")).strip(),
             "categoria": str(r.get("Categoria", "")).strip(),
-            "status": status,  # RECEBIDO | PENDENTE
+            "status": status,
         })
 
     # ── assemble payload ─────────────────────────────────────────────────────
@@ -189,12 +190,10 @@ def main():
 
     json_str = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
 
-    # ── inject into dashboard.html ────────────────────────────────────────────
     html_path = os.path.join(os.path.dirname(__file__), "dashboard.html")
     with open(html_path, "r", encoding="utf-8") as f:
         html = f.read()
 
-    # Replace the placeholder line
     new_data_line = f"const DATA = {json_str};"
     html = re.sub(
         r"const DATA\s*=\s*\{[^;]*\};",
