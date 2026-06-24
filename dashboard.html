@@ -409,6 +409,32 @@
 
   </div>
 
+
+  <!-- row 2b: subcategorias + fixo vs variável -->
+  <div class="grid-2 mt-16">
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Saídas por Subcategoria</span>
+        <span class="panel-sub" id="subcat-total-label"></span>
+      </div>
+      <div class="panel-body">
+        <div class="cat-list" id="subcat-list"><div class="empty">Sem dados</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Fixo vs Variável</span>
+        <span class="panel-sub" id="modelo-total-label"></span>
+      </div>
+      <div class="panel-body">
+        <div class="cat-list" id="modelo-list"><div class="empty">Sem dados</div></div>
+      </div>
+    </div>
+
+  </div>
+
   <!-- row 3: reserva emergência + dívidas + histórico mensal -->
   <div class="grid-3 mt-16">
 
@@ -542,7 +568,7 @@
 
 <script>
 /* ── DATA — replaced by fetch_data.py ── */
-const DATA = {"updated_at":"2026-06-24T18:40:51Z","transactions":[{"data":"2026-06-08","hora":"2026-06-08T18:31:06","data_fatura":null,"descricao":"PLANO DE SAÚDE - UNIMED - MAIO 2026","valor":794.9,"tipo":"SAÍDA","modelo":"FIXO","conta":"BRADESCO PJ - VICTORIA","categoria":"Cuidados","subcategoria":"","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":null,"descricao":"DÍZIMO INSIDER - JUNHO 2026","valor":660.0,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO PJ - VICTORIA","categoria":"Doação","subcategoria":"","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":"2026-07-10","descricao":"FRUTARIA","valor":30.98,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO - VICTORIA","categoria":"Alimentação","subcategoria":"","cobranca":"CRÉDITO"},{"data":"2026-06-22","hora":"2026-06-22T11:50:00","data_fatura":null,"descricao":"PINHEIRO","valor":30.0,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO - VICTORIA","categoria":"Supermercado","subcategoria":"","cobranca":"PIX"},{"data":"2026-06-23","hora":"2026-06-23T21:00:00","data_fatura":null,"descricao":"PINHEIRO","valor":17.0,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO PJ - VICTORIA","categoria":"Supermercado","subcategoria":"","cobranca":"PIX"},{"data":"2026-06-23","hora":"2026-06-23T17:21:00","data_fatura":"2026-07-10","descricao":"CANVA","valor":13.9,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO - VICTORIA","categoria":"Serviços","subcategoria":"","cobranca":"CRÉDITO"}],"saldos":[{"data":"2026-06-08","conta":"NUBANK PF - VICTORIA","cobranca":"PIX","saldo":126.31},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"CRÉDITO","saldo":-3218.13},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"PIX","saldo":8.14},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"CRÉDITO","saldo":-3590.92},{"data":"2026-06-08","conta":"BRADESCO PJ - VICTORIA","cobranca":"PIX","saldo":2545.26}],"entradas":[{"data":"2026-06-05","descricao":"SERVIÇO INSIDER - MAIO 2026","valor":6000.0,"conta":"BRADESCO PJ - VICTORIA","categoria":"Serviços","status":"RECEBIDO"},{"data":"2026-06-10","descricao":"SERVIÇO START - MAIO 2026","valor":2000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"},{"data":"2026-06-10","descricao":"SERVIÇO AGP - MAIO 2026","valor":5000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"}]};
+const DATA = {"updated_at":"2026-06-24T18:43:36Z","transactions":[{"data":"2026-06-08","hora":"2026-06-08T18:31:06","data_fatura":null,"descricao":"PLANO DE SAÚDE - UNIMED - MAIO 2026","valor":794.9,"tipo":"SAÍDA","modelo":"FIXO","conta":"BRADESCO PJ - VICTORIA","categoria":"Cuidados","subcategoria":"","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":null,"descricao":"DÍZIMO INSIDER - JUNHO 2026","valor":660.0,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO PJ - VICTORIA","categoria":"Doação","subcategoria":"","cobranca":"PIX"},{"data":"2026-06-08","hora":"2026-06-08T20:08:23","data_fatura":"2026-07-10","descricao":"FRUTARIA","valor":30.98,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO - VICTORIA","categoria":"Alimentação","subcategoria":"","cobranca":"CRÉDITO"},{"data":"2026-06-22","hora":"2026-06-22T11:50:00","data_fatura":null,"descricao":"PINHEIRO","valor":30.0,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO - VICTORIA","categoria":"Supermercado","subcategoria":"","cobranca":"PIX"},{"data":"2026-06-23","hora":"2026-06-23T21:00:00","data_fatura":null,"descricao":"PINHEIRO","valor":17.0,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO PJ - VICTORIA","categoria":"Supermercado","subcategoria":"","cobranca":"PIX"},{"data":"2026-06-23","hora":"2026-06-23T17:21:00","data_fatura":"2026-07-10","descricao":"CANVA","valor":13.9,"tipo":"SAÍDA","modelo":"VARIÁVEL","conta":"BRADESCO - VICTORIA","categoria":"Serviços","subcategoria":"","cobranca":"CRÉDITO"}],"saldos":[{"data":"2026-06-08","conta":"NUBANK PF - VICTORIA","cobranca":"PIX","saldo":126.31},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"PIX","saldo":0.0},{"data":"2026-06-08","conta":"INTER - VICTORIA","cobranca":"CRÉDITO","saldo":-3218.13},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"PIX","saldo":8.14},{"data":"2026-06-08","conta":"BRADESCO - VICTORIA","cobranca":"CRÉDITO","saldo":-3590.92},{"data":"2026-06-08","conta":"BRADESCO PJ - VICTORIA","cobranca":"PIX","saldo":2545.26}],"entradas":[{"data":"2026-06-05","descricao":"SERVIÇO INSIDER - MAIO 2026","valor":6000.0,"conta":"BRADESCO PJ - VICTORIA","categoria":"Serviços","status":"RECEBIDO"},{"data":"2026-06-10","descricao":"SERVIÇO START - MAIO 2026","valor":2000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"},{"data":"2026-06-10","descricao":"SERVIÇO AGP - MAIO 2026","valor":5000.0,"conta":"NUBANK PF - VICTORIA","categoria":"Serviços","status":"PENDENTE"}]};
 
 /* ── state ── */
 let dateFrom = null, dateTo = null, pagePage = 0;
@@ -611,6 +637,8 @@ function renderAll() {
   pagePage=0;
   renderCards();
   renderCategories();
+  renderSubcategories();
+  renderModelo();
   renderSaldos();
   renderDizimos();
   renderReserva();
@@ -669,6 +697,50 @@ function renderCategories() {
     return `<div class="cat-row">
       <div class="cat-meta"><span class="cat-name">${cat}</span><span class="cat-value">${fmtBRL(val)}</span><span class="cat-pct">${pct}%</span></div>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+
+/* ── subcategories ── */
+function renderSubcategories() {
+  const saidas = DATA.transactions.filter(t=>inPeriod(t.data||t.data_fatura)&&t.tipo==="SAÍDA"&&!isDizimo(t)&&!isInvest(t));
+  const bycat  = {};
+  saidas.forEach(t=>{
+    const sub = (t.subcategoria && t.subcategoria.trim()) ? t.subcategoria.trim() : (t.categoria||"Sem categoria");
+    bycat[sub]=(bycat[sub]||0)+Math.abs(t.valor);
+  });
+  const sorted = Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
+  const total  = sorted.reduce((s,[,v])=>s+v,0);
+  set("subcat-total-label", total?fmtBRL(total):"");
+  const el=document.getElementById("subcat-list");
+  if (!sorted.length){el.innerHTML='<div class="empty">Sem saídas no período</div>';return;}
+  el.innerHTML=sorted.map(([cat,val])=>{
+    const pct=total>0?(val/total*100).toFixed(1):0;
+    return `<div class="cat-row">
+      <div class="cat-meta"><span class="cat-name">${cat}</span><span class="cat-value">${fmtBRL(val)}</span><span class="cat-pct">${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+/* ── fixo vs variável ── */
+function renderModelo() {
+  const saidas = DATA.transactions.filter(t=>inPeriod(t.data||t.data_fatura)&&t.tipo==="SAÍDA"&&!isDizimo(t)&&!isInvest(t));
+  const bymod  = {};
+  saidas.forEach(t=>{ const m=t.modelo||"NÃO INFORMADO"; bymod[m]=(bymod[m]||0)+Math.abs(t.valor); });
+  const sorted = Object.entries(bymod).sort((a,b)=>b[1]-a[1]);
+  const total  = sorted.reduce((s,[,v])=>s+v,0);
+  set("modelo-total-label", total?fmtBRL(total):"");
+  const el=document.getElementById("modelo-list");
+  if (!sorted.length){el.innerHTML='<div class="empty">Sem saídas no período</div>';return;}
+  const colors={"FIXO":"var(--blue)","VARIÁVEL":"var(--red)","NÃO INFORMADO":"var(--text-faint)"};
+  el.innerHTML=sorted.map(([mod,val])=>{
+    const pct=total>0?(val/total*100).toFixed(1):0;
+    const color=colors[mod]||"var(--text-faint)";
+    return `<div class="cat-row">
+      <div class="cat-meta"><span class="cat-name">${mod}</span><span class="cat-value">${fmtBRL(val)}</span><span class="cat-pct">${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
     </div>`;
   }).join("");
 }
