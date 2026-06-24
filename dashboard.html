@@ -409,6 +409,32 @@
 
   </div>
 
+
+  <!-- row 2b: subcategorias + fixo vs variável -->
+  <div class="grid-2 mt-16">
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Saídas por Subcategoria</span>
+        <span class="panel-sub" id="subcat-total-label"></span>
+      </div>
+      <div class="panel-body">
+        <div class="cat-list" id="subcat-list"><div class="empty">Sem dados</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Fixo vs Variável</span>
+        <span class="panel-sub" id="modelo-total-label"></span>
+      </div>
+      <div class="panel-body">
+        <div class="cat-list" id="modelo-list"><div class="empty">Sem dados</div></div>
+      </div>
+    </div>
+
+  </div>
+
   <!-- row 3: reserva emergência + dívidas + histórico mensal -->
   <div class="grid-3 mt-16">
 
@@ -644,6 +670,8 @@ function renderAll() {
   pagePage=0;
   renderCards();
   renderCategories();
+  renderSubcategories();
+  renderModelo();
   renderSaldos();
   renderDizimos();
   renderReserva();
@@ -702,6 +730,50 @@ function renderCategories() {
     return `<div class="cat-row">
       <div class="cat-meta"><span class="cat-name">${cat}</span><span class="cat-value">${fmtBRL(val)}</span><span class="cat-pct">${pct}%</span></div>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+
+/* ── subcategories ── */
+function renderSubcategories() {
+  const saidas = DATA.transactions.filter(t=>inPeriod(t.data||t.data_fatura)&&t.tipo==="SAÍDA"&&!isDizimo(t)&&!isInvest(t));
+  const bycat  = {};
+  saidas.forEach(t=>{
+    const sub = (t.subcategoria && t.subcategoria.trim()) ? t.subcategoria.trim() : (t.categoria||"Sem categoria");
+    bycat[sub]=(bycat[sub]||0)+Math.abs(t.valor);
+  });
+  const sorted = Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
+  const total  = sorted.reduce((s,[,v])=>s+v,0);
+  set("subcat-total-label", total?fmtBRL(total):"");
+  const el=document.getElementById("subcat-list");
+  if (!sorted.length){el.innerHTML='<div class="empty">Sem saídas no período</div>';return;}
+  el.innerHTML=sorted.map(([cat,val])=>{
+    const pct=total>0?(val/total*100).toFixed(1):0;
+    return `<div class="cat-row">
+      <div class="cat-meta"><span class="cat-name">${cat}</span><span class="cat-value">${fmtBRL(val)}</span><span class="cat-pct">${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+/* ── fixo vs variável ── */
+function renderModelo() {
+  const saidas = DATA.transactions.filter(t=>inPeriod(t.data||t.data_fatura)&&t.tipo==="SAÍDA"&&!isDizimo(t)&&!isInvest(t));
+  const bymod  = {};
+  saidas.forEach(t=>{ const m=t.modelo||"NÃO INFORMADO"; bymod[m]=(bymod[m]||0)+Math.abs(t.valor); });
+  const sorted = Object.entries(bymod).sort((a,b)=>b[1]-a[1]);
+  const total  = sorted.reduce((s,[,v])=>s+v,0);
+  set("modelo-total-label", total?fmtBRL(total):"");
+  const el=document.getElementById("modelo-list");
+  if (!sorted.length){el.innerHTML='<div class="empty">Sem saídas no período</div>';return;}
+  const colors={"FIXO":"var(--blue)","VARIÁVEL":"var(--red)","NÃO INFORMADO":"var(--text-faint)"};
+  el.innerHTML=sorted.map(([mod,val])=>{
+    const pct=total>0?(val/total*100).toFixed(1):0;
+    const color=colors[mod]||"var(--text-faint)";
+    return `<div class="cat-row">
+      <div class="cat-meta"><span class="cat-name">${mod}</span><span class="cat-value">${fmtBRL(val)}</span><span class="cat-pct">${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
     </div>`;
   }).join("");
 }
