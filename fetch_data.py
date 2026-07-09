@@ -114,9 +114,9 @@ def main():
 
     transactions = []
     for r in raw_transactions:
-        data      = parse_date(r.get("Data", ""))
-        hora      = parse_datetime(r.get("Data", ""))
-        data_fatura = parse_date(r.get("Data da Fatura", ""))
+        data      = parse_date(get_field(r, "Data Compra", "Data"))
+        hora      = parse_datetime(get_field(r, "Data Compra", "Data"))
+        data_fatura = parse_date(get_field(r, "Data Cobrança", "Data Cobranca", "Data da Fatura"))
         valor     = parse_value(r.get("Valor", ""))
         tipo      = str(r.get("TIPO", "")).strip().upper()
         modelo    = str(r.get("MODELO", "")).strip().upper()       # FIXO | VARIÁVEL
