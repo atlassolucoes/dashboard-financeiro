@@ -56,9 +56,11 @@ Para mudar a frequência, edite `.github/workflows/update-dashboard.yml`.
 ## Estrutura esperada das abas
 
 ### ENTRADA E SAIDA
-| Data | Data da Fatura | Descrição | Valor | TIPO | Conta | Categoria | Cobrança |
-|------|---------------|-----------|-------|------|-------|-----------|----------|
+| Data Compra | Data Cobrança | Descrição | Valor | TIPO | Conta | Categoria | Cobrança |
+|-------------|----------------|-----------|-------|------|-------|-----------|----------|
 | dd/mm/yyyy | dd/mm/yyyy | ... | R$ 0,00 | Entrada/Saída | ... | ... | PIX/CRÉDITO |
+
+> **Data Compra**: quando a compra foi realizada. **Data Cobrança**: quando cai na fatura (em compras parceladas, cada parcela tem sua própria Data Cobrança, mas a Data Compra é a do lançamento original).
 
 ### SALDOS CONTAS
 | Data | Conta | Cobrança | Saldo |
